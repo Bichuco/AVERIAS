@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Averías - Google Sheets</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        /* Navegación */
+        .nav-tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px 10px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            color: #666;
+        }
+
+        .tab.active {
+            color: #1a73e8;
+            border-bottom: 3px solid #1a73e8;
+            background: white;
+        }
+
+        .tab i {
+            margin-right: 8px;
+        }
+
+        /* Contenido */
+        .content {
+            padding: 25px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Formulario */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Botones */
+        .btn {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn i {
+            margin-right: 10px;
+        }
+
+        .btn-secondary {
+            background: #666;
+        }
+
+        .btn-warning {
+            background: #f57c00;
+        }
+
+        .btn-danger {
+            background: #d32f2f;
+        }
+
+        .btn-success {
+            background: #388e3c;
+        }
+
+        /* Búsqueda */
+        .search-box {
+            display: flex;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-box button {
+            padding: 0 25px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Filtros */
+        .filters {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .filter-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Resultados */
+        .data-list {
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .data-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #1a73e8;
+        }
+
+        .data-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-matricula {
+            background: #1a73e8;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .data-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .data-row {
+            display: flex;
+            margin: 8px 0;
+            gap: 20px;
+        }
+
+        .data-field {
+            flex: 1;
+        }
+
+        .data-field strong {
+            color: #1a73e8;
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+        }
+
+        .codigo-averia {
+            display: inline-block;
+            background: #fbbc04;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .data-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        /* Modal de edición */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #1a73e8;
+            font-weight: 700;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Resumen de datos */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #1a73e8;
+        }
+
+        .stat-card h3 {
+            color: #1a73e8;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .stat-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .stat-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-list li:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        .stat-count {
+            background: #1a73e8;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Configuración */
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1a73e8;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            body {
+                padding: 0;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .tab {
+                padding: 12px 5px;
+                font-size: 0.9rem;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .data-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .data-actions {
+                flex-direction: column;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-car-crash"></i> Registro de Averías</h1>
+            <p>Sistema de gestión para taller mecánico</p>
+        </div>
+
+        <!-- Navegación -->
+        <div class="nav-tabs">
+            <div class="tab active" onclick="switchTab('form')">
+                <i class="fas fa-plus-circle"></i> Nuevo
+            </div>
+            <div class="tab" onclick="switchTab('search')">
+                <i class="fas fa-search"></i> Buscar
+            </div>
+            <div class="tab" onclick="switchTab('config')">
+                <i class="fas fa-cog"></i> Config
+            </div>
+        </div>
+
+        <!-- Contenido -->
+        <div class="content">
+            <!-- Alertas -->
+            <div class="alert" id="alert"></div>
+            
+            <!-- Spinner -->
+            <div class="spinner" id="spinner"></div>
+
+            <!-- Pestaña: Formulario -->
+            <div class="tab-content active" id="form-tab">
+                <h2 style="margin-bottom: 20px; color: #1a73e8;">
+                    <i class="fas fa-car-crash"></i> Registrar Nueva Avería
+                </h2>
+                
+                <form id="dataForm" onsubmit="event.preventDefault(); saveData();">
+                    <div class="form-group">
+                        <label for="fecha"><i class="fas fa-calendar"></i> Fecha</label>
+                        <input type="date" id="fecha" name="fecha" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="matricula"><i class="fas fa-car"></i> Matrícula</label>
+                        <input type="text" id="matricula" name="matricula" required 
+                               placeholder="Ej: 1234ABC" oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="codigo_averia"><i class="fas fa-barcode"></i> Código de Avería</label>
+                        <input type="text" id="codigo_averia" name="codigo_averia" 
+                               placeholder="Ej: P0301, B1234" oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="marca"><i class="fas fa-industry"></i> Marca</label>
+                        <input type="text" id="marca" name="marca" required 
+                               placeholder="Ej: TOYOTA, VOLKSWAGEN" oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modelo"><i class="fas fa-car-side"></i> Modelo</label>
+                        <input type="text" id="modelo" name="modelo" required 
+                               placeholder="Ej: COROLLA 1.6, GOLF TDI" oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sintomas"><i class="fas fa-stethoscope"></i> Síntomas Reportados</label>
+                        <textarea id="sintomas" name="sintomas" required 
+                                  placeholder="Describe los síntomas que presenta el vehículo..."
+                                  oninput="this.value = this.value.toUpperCase()"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="averia_real"><i class="fas fa-search"></i> Avería Real Diagnosticada</label>
+                        <textarea id="averia_real" name="averia_real" required 
+                                  placeholder="Diagnóstico real después de la revisión..."
+                                  oninput="this.value = this.value.toUpperCase()"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="procedimiento"><i class="fas fa-tools"></i> Procedimiento Realizado</label>
+                        <textarea id="procedimiento" name="procedimiento" required 
+                                  placeholder="Detalla las reparaciones realizadas..."
+                                  oninput="this.value = this.value.toUpperCase()"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Guardar en Google Sheets
+                    </button>
+                </form>
+            </div>
+
+            <!-- Pestaña: Buscar -->
+            <div class="tab-content" id="search-tab">
+                <h2 style="margin-bottom: 20px; color: #1a73e8;">
+                    <i class="fas fa-search"></i> Buscar Registros
+                </h2>
+                
+                <!-- Filtros de búsqueda -->
+                <div class="filters">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="searchMarca"><i class="fas fa-industry"></i> Marca</label>
+                            <input type="text" id="searchMarca" placeholder="Buscar por marca..."
+                                   oninput="this.value = this.value.toUpperCase()">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="searchCodigo"><i class="fas fa-barcode"></i> Código de Avería</label>
+                            <input type="text" id="searchCodigo" placeholder="Buscar por código..."
+                                   oninput="this.value = this.value.toUpperCase()">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="searchMatricula"><i class="fas fa-car"></i> Matrícula</label>
+                            <input type="text" id="searchMatricula" placeholder="Buscar por matrícula..."
+                                   oninput="this.value = this.value.toUpperCase()">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button class="btn" onclick="searchByFilters()">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearFilters()">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                        <button class="btn btn-success" onclick="loadAllData()">
+                            <i class="fas fa-list"></i> Ver Todos
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Búsqueda general -->
+                <div class="search-box">
+                    <input type="text" id="searchInput" 
+                           placeholder="Búsqueda general (matrícula, marca, modelo, código, síntomas, procedimiento)..."
+                           onkeypress="if(event.key === 'Enter') searchGeneral()"
+                           oninput="this.value = this.value.toUpperCase()">
+                    <button onclick="searchGeneral()">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+                
+                <div id="resultsCount" style="margin-bottom: 15px; font-weight: 600; color: #555;"></div>
+                
+                <!-- Lista de resultados -->
+                <div class="data-list" id="dataList">
+                    <div class="empty-state" id="emptyState">
+                        <i class="fas fa-database" style="font-size: 3rem; color: #ddd; display: block; text-align: center; margin: 40px 0 20px;"></i>
+                        <h3 style="text-align: center; color: #666;">No hay registros</h3>
+                        <p style="text-align: center; color: #888;">Busca registros o carga todos los datos</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña: Configuración -->
+            <div class="tab-content" id="config-tab">
+                <h2 style="margin-bottom: 20px; color: #1a73e8;">
+                    <i class="fas fa-cog"></i> Resumen del Sistema
+                </h2>
+                
+                <!-- Resumen de datos -->
+                <div id="statsContent">
+                    <div class="config-section">
+                        <h3 style="margin-bottom: 15px;"><i class="fas fa-chart-bar"></i> Estadísticas Generales</h3>
+                        <div id="loadingStats" style="text-align: center; padding: 20px;">
+                            <div class="spinner" style="display: block;"></div>
+                            <p>Cargando estadísticas...</p>
+                        </div>
+                        <div id="statsContainer" class="stats-container" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Información del sistema -->
+                <div class="config-section">
+                    <h3 style="margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Información del Sistema</h3>
+                    <div style="margin-bottom: 15px;">
+                        <p><strong>URL configurada:</strong></p>
+                        <div style="background: #e8f0fe; padding: 10px; border-radius: 5px; margin-bottom: 10px; font-family: monospace;">
+                            <span id="currentUrl">Cargando...</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <p><strong>Conexión:</strong></p>
+                        <div id="connectionStatus" style="padding: 8px 12px; border-radius: 5px; display: inline-block;">
+                            <i class="fas fa-circle" style="color: #ccc;"></i> Sin verificar
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instrucciones -->
+                <div class="config-section">
+                    <h3 style="margin-bottom: 15px;"><i class="fas fa-book"></i> Instrucciones</h3>
+                    <div style="margin-bottom: 10px;">
+                        <p><strong>Para usar la aplicación:</strong></p>
+                        <ol style="margin: 10px 0 10px 20px; line-height: 1.6;">
+                            <li><strong>Nuevo Registro:</strong> Completa todos los campos del formulario</li>
+                            <li><strong>Buscar:</strong> Usa los filtros por marca, código o matrícula</li>
+                            <li><strong>Editar:</strong> Haz clic en "Editar" en cualquier registro para modificarlo</li>
+                            <li><strong>Todos los campos se guardan en MAYÚSCULAS automáticamente</strong></li>
+                        </ol>
+                    </div>
+                    
+                    <div>
+                        <p><strong>Para instalar como app en móvil:</strong></p>
+                        <ol style="margin: 10px 0 10px 20px; line-height: 1.6;">
+                            <li>Abre esta página en Chrome (Android) o Safari (iOS)</li>
+                            <li>Toca el menú (⋮ o compartir)</li>
+                            <li>Selecciona "Añadir a la pantalla de inicio"</li>
+                            <li>Sigue las instrucciones para instalarla</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edición -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-edit"></i> Editar Registro
+                </div>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            
+            <form id="editForm" onsubmit="event.preventDefault(); updateData();">
+                <input type="hidden" id="editId">
+                
+                <div class="form-group">
+                    <label for="editFecha"><i class="fas fa-calendar"></i> Fecha</label>
+                    <input type="date" id="editFecha" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editMatricula"><i class="fas fa-car"></i> Matrícula</label>
+                    <input type="text" id="editMatricula" required 
+                           oninput="this.value = this.value.toUpperCase()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editCodigo"><i class="fas fa-barcode"></i> Código de Avería</label>
+                    <input type="text" id="editCodigo" 
+                           oninput="this.value = this.value.toUpperCase()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editMarca"><i class="fas fa-industry"></i> Marca</label>
+                    <input type="text" id="editMarca" required 
+                           oninput="this.value = this.value.toUpperCase()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editModelo"><i class="fas fa-car-side"></i> Modelo</label>
+                    <input type="text" id="editModelo" required 
+                           oninput="this.value = this.value.toUpperCase()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editSintomas"><i class="fas fa-stethoscope"></i> Síntomas Reportados</label>
+                    <textarea id="editSintomas" required 
+                              oninput="this.value = this.value.toUpperCase()"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editAveriaReal"><i class="fas fa-search"></i> Avería Real Diagnosticada</label>
+                    <textarea id="editAveriaReal" required 
+                              oninput="this.value = this.value.toUpperCase()"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editProcedimiento"><i class="fas fa-tools"></i> Procedimiento Realizado</label>
+                    <textarea id="editProcedimiento" required 
+                              oninput="this.value = this.value.toUpperCase()"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="deleteRecord()">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN FIJA - AQUÍ PONES TU URL
+        // ============================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzYllBBsL3Ue_0eRRA-iaDlhXVFmTtgOrc03ruyWKFS-B0X7l74Wf4zuOHaLapUEVIgA/exec";
+        // ============================================
+        // REEMPLAZA LA URL ANTERIOR CON LA TUYA
+        // ============================================
+        
+        // Variables globales
+        let allData = [];
+        let currentRecordId = null;
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar fecha actual
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = today;
+            
+            // Mostrar URL configurada
+            document.getElementById('currentUrl').textContent = SCRIPT_URL;
+            
+            // Verificar conexión automáticamente
+            setTimeout(verifyConnection, 1000);
+            
+            // Cargar estadísticas al abrir pestaña Config
+            document.querySelector('.tab[onclick="switchTab(\'config\')"]').addEventListener('click', function() {
+                setTimeout(loadStats, 300);
+            });
+        });
+        
+        // Funciones de navegación
+        function switchTab(tabId) {
+            // Actualizar tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Activar tab seleccionado
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+            
+            // Cargar datos si es la pestaña de búsqueda
+            if (tabId === 'search' && allData.length === 0) {
+                setTimeout(loadAllData, 300);
+            }
+            
+            // Cargar estadísticas si es la pestaña de config
+            if (tabId === 'config') {
+                setTimeout(loadStats, 300);
+            }
+        }
+        
+        // Mostrar alerta
+        function showAlert(message, type = 'success') {
+            const alertEl = document.getElementById('alert');
+            alertEl.textContent = message;
+            alertEl.className = `alert alert-${type}`;
+            alertEl.style.display = 'block';
+            
+            setTimeout(() => {
+                alertEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Mostrar spinner
+        function showSpinner(show) {
+            document.getElementById('spinner').style.display = show ? 'block' : 'none';
+        }
+        
+        // Verificar conexión
+        async function verifyConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            
+            try {
+                const url = `${SCRIPT_URL}?action=test`;
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.result === 'success') {
+                    statusEl.innerHTML = '<i class="fas fa-check-circle" style="color: #388e3c;"></i> Conectado';
+                    statusEl.style.background = '#d4edda';
+                    statusEl.style.color = '#155724';
+                    return true;
+                } else {
+                    statusEl.innerHTML = '<i class="fas fa-times-circle" style="color: #d32f2f;"></i> Error de conexión';
+                    statusEl.style.background = '#f8d7da';
+                    statusEl.style.color = '#721c24';
+                    return false;
+                }
+            } catch (error) {
+                statusEl.innerHTML = '<i class="fas fa-times-circle" style="color: #d32f2f;"></i> Error de conexión';
+                statusEl.style.background = '#f8d7da';
+                statusEl.style.color = '#721c24';
+                return false;
+            }
+        }
+        
+        // Guardar datos (todos en mayúsculas)
+        async function saveData() {
+            const data = {
+                fecha: document.getElementById('fecha').value,
+                matricula: document.getElementById('matricula').value.toUpperCase(),
+                codigo_averia: document.getElementById('codigo_averia').value.toUpperCase(),
+                marca: document.getElementById('marca').value.toUpperCase(),
+                modelo: document.getElementById('modelo').value.toUpperCase(),
+                sintomas: document.getElementById('sintomas').value.toUpperCase(),
+                averia_real: document.getElementById('averia_real').value.toUpperCase(),
+                procedimiento: document.getElementById('procedimiento').value.toUpperCase()
+            };
+            
+            showSpinner(true);
+            
+            try {
+                const url = `${SCRIPT_URL}?action=insert&${new URLSearchParams(data).toString()}`;
+                const response = await fetch(url, { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.result === 'success') {
+                    showAlert('✅ Registro guardado correctamente en MAYÚSCULAS', 'success');
+                    document.getElementById('dataForm').reset();
+                    document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+                    
+                    // Recargar datos si estamos en búsqueda
+                    if (document.querySelector('.tab.active').textContent.includes('Buscar')) {
+                        loadAllData();
+                    }
+                    
+                    // Actualizar estadísticas
+                    if (document.querySelector('.tab.active').textContent.includes('Config')) {
+                        loadStats();
+                    }
+                } else {
+                    showAlert(`❌ Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Error de conexión: ${error.message}`, 'error');
+            } finally {
+                showSpinner(false);
+            }
+        }
+        
+        // Cargar todos los datos
+        async function loadAllData() {
+            showSpinner(true);
+            
+            try {
+                const url = `${SCRIPT_URL}?action=getAll`;
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.result === 'success' && result.data) {
+                    allData = result.data;
+                    displayData(allData);
+                } else {
+                    showAlert(`❌ Error del servidor: ${result.error || 'Sin datos'}`, 'error');
+                    displayData([]);
+                }
+            } catch (error) {
+                showAlert(`❌ Error al cargar datos: ${error.message}`, 'error');
+                displayData([]);
+            } finally {
+                showSpinner(false);
+            }
+        }
+        
+        // Buscar por filtros (marca y código)
+        async function searchByFilters() {
+            const marca = document.getElementById('searchMarca').value.trim().toUpperCase();
+            const codigo = document.getElementById('searchCodigo').value.trim().toUpperCase();
+            const matricula = document.getElementById('searchMatricula').value.trim().toUpperCase();
+            
+            if (!marca && !codigo && !matricula) {
+                showAlert('Ingresa al menos un criterio de búsqueda', 'error');
+                return;
+            }
+            
+            showSpinner(true);
+            
+            try {
+                // Si hay datos ya cargados, buscar localmente
+                if (allData.length > 0) {
+                    let filtered = allData;
+                    
+                    if (marca) {
+                        filtered = filtered.filter(item => 
+                            (item.Marca || '').includes(marca)
+                        );
+                    }
+                    
+                    if (codigo) {
+                        filtered = filtered.filter(item => 
+                            (item['Código de avería'] || '').includes(codigo)
+                        );
+                    }
+                    
+                    if (matricula) {
+                        filtered = filtered.filter(item => 
+                            (item.Matrícula || '').includes(matricula)
+                        );
+                    }
+                    
+                    displayData(filtered);
+                } else {
+                    // Si no hay datos, buscar en el servidor
+                    let searchTerm = '';
+                    if (marca) searchTerm = marca;
+                    if (codigo) searchTerm = codigo;
+                    if (matricula) searchTerm = matricula;
+                    
+                    const url = `${SCRIPT_URL}?action=search&term=${encodeURIComponent(searchTerm)}`;
+                    const response = await fetch(url);
+                    const result = await response.json();
+                    
+                    if (result.result === 'success' && result.data) {
+                        displayData(result.data);
+                    } else {
+                        showAlert(`❌ No se encontraron resultados`, 'error');
+                        displayData([]);
+                    }
+                }
+            } catch (error) {
+                showAlert(`❌ Error de búsqueda: ${error.message}`, 'error');
+                displayData([]);
+            } finally {
+                showSpinner(false);
+            }
+        }
+        
+        // Búsqueda general
+        async function searchGeneral() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            
+            if (!searchTerm) {
+                showAlert('Ingresa un término de búsqueda', 'error');
+                return;
+            }
+            
+            showSpinner(true);
+            
+            try {
+                const url = `${SCRIPT_URL}?action=search&term=${encodeURIComponent(searchTerm)}`;
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.result === 'success' && result.data) {
+                    allData = result.data;
+                    displayData(allData);
+                } else {
+                    showAlert(`❌ No se encontraron resultados para "${searchTerm}"`, 'error');
+                    displayData([]);
+                }
+            } catch (error) {
+                showAlert(`❌ Error de búsqueda: ${error.message}`, 'error');
+                displayData([]);
+            } finally {
+                showSpinner(false);
+            }
+        }
+        
+        // Limpiar filtros
+        function clearFilters() {
+            document.getElementById('searchMarca').value = '';
+            document.getElementById('searchCodigo').value = '';
+            document.getElementById('searchMatricula').value = '';
+            document.getElementById('searchInput').value = '';
+            
+            if (allData.length > 0) {
+                displayData(allData);
+            }
+        }
+        
+        // Mostrar datos
+        function displayData(data) {
+            const dataList = document.getElementById('dataList');
+            const resultsCount = document.getElementById('resultsCount');
+            
+            if (!Array.isArray(data) || data.length === 0) {
+                dataList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-database" style="font-size: 3rem; color: #ddd; display: block; text-align: center; margin: 40px 0 20px;"></i>
+                        <h3 style="text-align: center; color: #666;">No se encontraron registros</h3>
+                        <p style="text-align: center; color: #888;">Ajusta los filtros e intenta de nuevo</p>
+                    </div>
+                `;
+                resultsCount.textContent = '0 registros encontrados';
+                return;
+            }
+            
+            resultsCount.textContent = `${data.length} registro(s) encontrado(s)`;
+            
+            let html = '';
+            
+            data.forEach(item => {
+                const fecha = item.Fecha ? 
+                    new Date(item.Fecha).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    }) : 'Fecha no disponible';
+                
+                const matricula = item.Matrícula || item['Matrícula'] || 'SIN MATRÍCULA';
+                const marca = item.Marca || 'NO ESPECIFICADA';
+                const modelo = item.Modelo || 'NO ESPECIFICADO';
+                const codigo = item['Código de avería'] || item['Código'] || '';
+                const sintomas = item.Síntomas || item.Sintomas || 'NO ESPECIFICADOS';
+                const averiaReal = item['Avería real'] || item['Averia real'] || item.Avería || 'NO ESPECIFICADA';
+                const procedimiento = item.Procedimiento || 'NO ESPECIFICADO';
+                
+                html += `
+                    <div class="data-item" data-id="${item.ID}">
+                        <div class="data-header">
+                            <div class="data-matricula">${matricula}</div>
+                            <div class="data-date">${fecha}</div>
+                        </div>
+                        
+                        <div class="data-row">
+                            <div class="data-field">
+                                <strong><i class="fas fa-industry"></i> Marca</strong>
+                                <span>${marca}</span>
+                            </div>
+                            <div class="data-field">
+                                <strong><i class="fas fa-car-side"></i> Modelo</strong>
+                                <span>${modelo}</span>
+                            </div>
+                        </div>
+                        
+                        ${codigo ? `
+                        <div class="data-row">
+                            <div class="data-field">
+                                <strong><i class="fas fa-barcode"></i> Código</strong>
+                                <span class="codigo-averia">${codigo}</span>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="margin-top: 15px;">
+                            <strong style="color: #1a73e8; display: block; margin-bottom: 5px;">
+                                <i class="fas fa-stethoscope"></i> Síntomas
+                            </strong>
+                            <p>${sintomas}</p>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <strong style="color: #1a73e8; display: block; margin-bottom: 5px;">
+                                <i class="fas fa-search"></i> Avería Real
+                            </strong>
+                            <p>${averiaReal}</p>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <strong style="color: #1a73e8; display: block; margin-bottom: 5px;">
+                                <i class="fas fa-tools"></i> Procedimiento
+                            </strong>
+                            <p>${procedimiento}</p>
+                        </div>
+                        
+                        <div class="data-actions">
+                            <button class="btn btn-warning" onclick="openEditModal('${item.ID}')" style="padding: 8px 15px;">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            dataList.innerHTML = html;
+        }
+        
+        // Cargar estadísticas
+        async function loadStats() {
+            const loadingEl = document.getElementById('loadingStats');
+            const statsContainer = document.getElementById('statsContainer');
+            
+            loadingEl.style.display = 'block';
+            statsContainer.style.display = 'none';
+            
+            try {
+                const url = `${SCRIPT_URL}?action=getAll`;
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.result === 'success' && result.data) {
+                    allData = result.data;
+                    generateStats(allData);
+                    
+                    loadingEl.style.display = 'none';
+                    statsContainer.style.display = 'grid';
+                } else {
+                    statsContainer.innerHTML = `
+                        <div class="stat-card">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Error</h3>
+                            <p>No se pudieron cargar las estadísticas</p>
+                        </div>
+                    `;
+                    loadingEl.style.display = 'none';
+                    statsContainer.style.display = 'grid';
+                }
+            } catch (error) {
+                statsContainer.innerHTML = `
+                    <div class="stat-card">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Error de conexión</h3>
+                        <p>No se pudieron cargar las estadísticas</p>
+                    </div>
+                `;
+                loadingEl.style.display = 'none';
+                statsContainer.style.display = 'grid';
+            }
+        }
+        
+        // Generar estadísticas
+        function generateStats(data) {
+            const statsContainer = document.getElementById('statsContainer');
+            
+            // Estadísticas básicas
+            const totalRegistros = data.length;
+            const marcas = {};
+            const codigos = {};
+            const meses = {};
+            
+            data.forEach(item => {
+                // Contar marcas
+                const marca = item.Marca || 'SIN MARCA';
+                marcas[marca] = (marcas[marca] || 0) + 1;
+                
+                // Contar códigos
+                const codigo = item['Código de avería'] || 'SIN CÓDIGO';
+                codigos[codigo] = (codigos[codigo] || 0) + 1;
+                
+                // Contar por mes
+                if (item.Fecha) {
+                    const fecha = new Date(item.Fecha);
+                    const mes = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+                    meses[mes] = (meses[mes] || 0) + 1;
+                }
+            });
+            
+            // Ordenar marcas por frecuencia
+            const marcasOrdenadas = Object.entries(marcas)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10); // Top 10
+            
+            // Ordenar códigos por frecuencia
+            const codigosOrdenados = Object.entries(codigos)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10); // Top 10
+            
+            // Ordenar meses
+            const mesesOrdenados = Object.entries(meses)
+                .sort((a, b) => b[0].localeCompare(a[0]))
+                .slice(0, 6); // Últimos 6 meses
+            
+            // Calcular registros con/sin código
+            const conCodigo = data.filter(item => item['Código de avería'] && item['Código de avería'].trim() !== '').length;
+            const sinCodigo = totalRegistros - conCodigo;
+            
+            // HTML de estadísticas
+            let html = `
+                <div class="stat-card">
+                    <h3><i class="fas fa-database"></i> Total Registros</h3>
+                    <div class="stat-value">${totalRegistros}</div>
+                    <div style="font-size: 0.9rem; color: #666;">
+                        <div>✅ Con código: ${conCodigo}</div>
+                        <div>❌ Sin código: ${sinCodigo}</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3><i class="fas fa-chart-line"></i> Últimos 6 Meses</h3>
+                    <ul class="stat-list">
+                        ${mesesOrdenados.map(([mes, count]) => `
+                            <li>
+                                <span class="stat-label">${mes}</span>
+                                <span class="stat-count">${count}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div class="stat-card">
+                    <h3><i class="fas fa-industry"></i> Top Marcas</h3>
+                    <ul class="stat-list">
+                        ${marcasOrdenadas.map(([marca, count]) => `
+                            <li>
+                                <span class="stat-label">${marca}</span>
+                                <span class="stat-count">${count}</span>
+                            </li>
+                        `).join('')}
+                        ${Object.keys(marcas).length > 10 ? 
+                            `<li style="color: #666; font-style: italic;">... y ${Object.keys(marcas).length - 10} más</li>` : ''}
+                    </ul>
+                </div>
+                
+                <div class="stat-card">
+                    <h3><i class="fas fa-barcode"></i> Top Códigos</h3>
+                    <ul class="stat-list">
+                        ${codigosOrdenados.map(([codigo, count]) => `
+                            <li>
+                                <span class="stat-label">${codigo}</span>
+                                <span class="stat-count">${count}</span>
+                            </li>
+                        `).join('')}
+                        ${Object.keys(codigos).length > 10 ? 
+                            `<li style="color: #666; font-style: italic;">... y ${Object.keys(codigos).length - 10} más</li>` : ''}
+                    </ul>
+                </div>
+            `;
+            
+            statsContainer.innerHTML = html;
+        }
+        
+        // Modal de edición
+        function openEditModal(recordId) {
+            currentRecordId = recordId;
+            const record = allData.find(item => item.ID === recordId);
+            
+            if (!record) {
+                showAlert('Registro no encontrado', 'error');
+                return;
+            }
+            
+            // Llenar el formulario de edición
+            document.getElementById('editId').value = recordId;
+            document.getElementById('editFecha').value = record.Fecha ? record.Fecha.split('T')[0] : '';
+            document.getElementById('editMatricula').value = record.Matrícula || record['Matrícula'] || '';
+            document.getElementById('editCodigo').value = record['Código de avería'] || '';
+            document.getElementById('editMarca').value = record.Marca || '';
+            document.getElementById('editModelo').value = record.Modelo || '';
+            document.getElementById('editSintomas').value = record.Síntomas || record.Sintomas || '';
+            document.getElementById('editAveriaReal').value = record['Avería real'] || record['Averia real'] || record.Avería || '';
+            document.getElementById('editProcedimiento').value = record.Procedimiento || '';
+            
+            // Mostrar modal
+            document.getElementById('editModal').style.display = 'flex';
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentRecordId = null;
+        }
+        
+        // Actualizar datos
+        async function updateData() {
+            if (!currentRecordId) {
+                showAlert('Error al actualizar', 'error');
+                return;
+            }
+            
+            const data = {
+                id: currentRecordId,
+                fecha: document.getElementById('editFecha').value,
+                matricula: document.getElementById('editMatricula').value.toUpperCase(),
+                codigo_averia: document.getElementById('editCodigo').value.toUpperCase(),
+                marca: document.getElementById('editMarca').value.toUpperCase(),
+                modelo: document.getElementById('editModelo').value.toUpperCase(),
+                sintomas: document.getElementById('editSintomas').value.toUpperCase(),
+                averia_real: document.getElementById('editAveriaReal').value.toUpperCase(),
+                procedimiento: document.getElementById('editProcedimiento').value.toUpperCase()
+            };
+            
+            showSpinner(true);
+            
+            try {
+                const url = `${SCRIPT_URL}?action=update&${new URLSearchParams(data).toString()}`;
+                const response = await fetch(url, { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.result === 'success') {
+                    showAlert('✅ Registro actualizado correctamente', 'success');
+                    closeEditModal();
+                    loadAllData(); // Recargar datos
+                    loadStats(); // Actualizar estadísticas
+                } else {
+                    showAlert(`❌ Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Error de conexión: ${error.message}`, 'error');
+            } finally {
+                showSpinner(false);
+            }
+        }
+        
+        // Eliminar registro
+        async function deleteRecord() {
+            if (!confirm('¿Estás seguro de que quieres eliminar este registro?')) {
+                return;
+            }
+            
+            if (!currentRecordId) {
+                showAlert('Error al eliminar', 'error');
+                return;
+            }
+            
+            showSpinner(true);
+            
+            try {
+                const url = `${SCRIPT_URL}?action=delete&id=${currentRecordId}`;
+                const response = await fetch(url, { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.result === 'success') {
+                    showAlert('✅ Registro eliminado correctamente', 'success');
+                    closeEditModal();
+                    loadAllData(); // Recargar datos
+                    loadStats(); // Actualizar estadísticas
+                } else {
+                    showAlert(`❌ Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Error de conexión: ${error.message}`, 'error');
+            } finally {
+                showSpinner(false);
+            }
+        }
+    </script>
+</body>
+</html>
